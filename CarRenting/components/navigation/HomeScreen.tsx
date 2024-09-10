@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, TextInput, TouchableOpacity  } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as React from 'react';
 
@@ -10,6 +10,11 @@ function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={require('@/assets/images/x5m.png')} 
+        style={styles.backgroundImage} 
+        resizeMode="cover"
+      />
       <View style={styles.filterContainer}>
         <Text style={styles.title}>Zoek naar een Auto</Text>
         
@@ -36,7 +41,6 @@ function HomeScreen() {
           <Picker.Item label="Gold" value="gold" />
           <Picker.Item label="Premium" value="premium" />
         </Picker>
-
         
         <Picker
           selectedValue={location}
@@ -48,7 +52,7 @@ function HomeScreen() {
         </Picker>
 
         <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Zoeken</Text>
+          <Text style={styles.buttonText}>Zoeken</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -58,36 +62,33 @@ function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 70,
     backgroundColor: '#f5f5f5',
+    justifyContent: 'flex-end', 
   },
-  button: {
-    backgroundColor: 'FF5F00',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
-  buttonText: {
-    backgroundColor: '#fff',
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: '50%',
+    width: '100%',
+    height: '50%',
   },
   filterContainer: {
-    width: '90%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: -2 },
     elevation: 3,
-    marginBottom: 10,
+    height: 400,
   },
   title: {
     fontSize: 18,
@@ -102,6 +103,22 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+  },
+  button: {
+    backgroundColor: '#FF5F00',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 
