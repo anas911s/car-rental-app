@@ -8,6 +8,8 @@ import HomeScreen from '@/components/navigation/HomeScreen';
 import CarsScreen from '@/components/navigation/CarsScreen';
 import SettingsScreen from '@/components/navigation/SettingsScreen';
 import InfoScreen from '@/components/navigation/InfoScreen';
+import ProfileScreen from '@/components/navigation/ProfileScreen';
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -17,6 +19,7 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Info" component={InfoScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
     </Stack.Navigator>
   );
 }
@@ -24,8 +27,9 @@ function HomeStack() {
 export default function App() {
   return (
     <NavigationContainer independent={true}>
-      <Tab.Navigator
+      <Tab.Navigator 
         screenOptions={({ route }) => ({
+          headerShown: false,
           tabBarStyle: styles.tabBar,
           tabBarLabelStyle: styles.tabBarLabel,
           tabBarActiveTintColor: '#FFFFFF',
@@ -37,8 +41,8 @@ export default function App() {
               iconName = 'home-outline';
             } else if (route.name === 'Cars') {
               iconName = 'car-outline';
-            } else if (route.name === 'Settings') {
-              iconName = 'settings-outline';
+            } else if (route.name === 'Profile') {
+              iconName = 'person-outline';
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -47,7 +51,7 @@ export default function App() {
       >
         <Tab.Screen name="Home" component={HomeStack} />
         <Tab.Screen name="Cars" component={CarsScreen} />
-        <Tab.Screen name="Settings" component={SettingsScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

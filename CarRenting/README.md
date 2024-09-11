@@ -1,6 +1,4 @@
-# Welcome to your Expo app 👋
-
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# CarRentalApp
 
 ## Get started
 
@@ -32,3 +30,6 @@ You can start developing by editing the files inside the **app** directory. This
 - https://stackoverflow.com/questions/60359773/react-native-form-using-usestate
 - https://www.w3schools.com/react/default.asp
 - https://www.w3schools.com/typescript/index.php
+- https://reactnative.dev/docs
+- [dimensions](https://reactnative.dev/docs/dimensions)
+- [platform react-native](https://reactnative.dev/docs/platform-specific-code)

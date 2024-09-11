@@ -1,6 +1,9 @@
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as React from 'react';
+
+const window = Dimensions.get('window');
+const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function HomeScreen() {
   const [pickupDate, setPickupDate] = React.useState('');
@@ -67,20 +70,23 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     position: 'absolute',
-    top: 0,
+    justifyContent: 'flex-start',
+    top: -10,
     left: 0,
     right: 0,
-    bottom: '50%',
-    width: '100%',
-    height: '50%',
+    bottom: '10%',
+    width: isMobile? '127%': '100%',
+    height: isMobile? 345 : 450,
   },
+
   filterContainer: {
     position: 'absolute',
+    justifyContent: 'flex-end',
     bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: '#fff',
-    padding: 15,
+    padding: isMobile ? 75 : 150,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: '#000',
@@ -88,7 +94,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOffset: { width: 0, height: -2 },
     elevation: 3,
-    height: 400,
+    height: isMobile ? 400 : 600,
   },
   title: {
     fontSize: 18,
@@ -97,12 +103,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    height: 40,
+    height: 50,
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    width: '100%',
   },
   button: {
     backgroundColor: '#FF5F00',
