@@ -1,5 +1,6 @@
-import { Text, View, StyleSheet, FlatList, Image } from 'react-native';
+import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import * as React from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const cars = [
   {
@@ -37,8 +38,13 @@ const cars = [
 ];
 
 function CarsScreen() {
+  const navigation = useNavigation();
+
   const renderCar = ({ item }) => (
-    <View style={styles.carContainer}>
+    <TouchableOpacity 
+      style={styles.carContainer}
+      onPress={() => navigation.navigate('Info', { carId: item.id })}
+    >
       <Image source={{ uri: item.image }} style={styles.carImage} />
       <View style={styles.carDetails}>
         <Text style={styles.carName}>{item.name}</Text>
@@ -46,7 +52,7 @@ function CarsScreen() {
         <Text>Vermogen: {item.power}</Text>
         <Text>Aantal deuren: {item.doors}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
