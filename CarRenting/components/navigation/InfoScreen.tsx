@@ -10,7 +10,7 @@ function InfoScreen() {
       <Text style={styles.title}>Info</Text>
       <TouchableOpacity 
         style={styles.button} 
-        onPress={() => navigation.navigate('Cars')}
+        onPress={() => navigation.navigate('Home')}
       >
         <Text style={styles.buttonText}>Terug naar zoeken</Text>
       </TouchableOpacity>

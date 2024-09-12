@@ -107,12 +107,11 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         position: 'absolute',
-        justifyContent: 'flex-end',
         bottom: 100,
         left: 20,
         right: 20,
         backgroundColor: '#fff',
-        padding: isMobile ? 75 : 150,
+        padding: isMobile ? 75 : 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         borderBottomLeftRadius: 20,
@@ -122,7 +121,6 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         shadowOffset: { width: 0, height: -2 },
         elevation: 3,
-        height: isMobile ? 320 : 550,
     },
     title: {
         fontSize: 18,
