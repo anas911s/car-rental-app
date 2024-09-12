@@ -1,66 +1,71 @@
-import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
-const cars = [
-  {
-    id: '1',
-    name: 'Volkswagen Golf 8 GTI',
-    pricePerDay: '€150',
-    power: '245 pk',
-    doors: '5 deuren',
-    image: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '2',
-    name: 'Mercedes-Benz A-Class',
-    pricePerDay: '€100',
-    power: '190 pk',
-    doors: '4 deuren',
-    image: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '3',
-    name: 'BMW 3 Series',
-    pricePerDay: '€190',
-    power: '280 pk',
-    doors: '4 deuren',
-    image: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '4',
-    name: 'Mercedes-Benz GT63S',
-    pricePerDay: '€500',
-    power: '639 pk',
-    doors: '4 deuren',
-    image: 'https://via.placeholder.com/100',
-  },
-];
+const API_URL = 'http://localhost:3000/cars';
+
+const images = {
+  'gti.png': require('@/assets/images/gti.png'),
+};
 
 function CarsScreen() {
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const response = await axios.get(API_URL);
+        setCars(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   const renderCar = ({ item }) => (
     <TouchableOpacity 
       style={styles.carContainer}
-      onPress={() => navigation.navigate('Info', { carId: item.id })}
+      onPress={() => navigation.navigate('Info', { car: item })}
     >
-      <Image source={{ uri: item.image }} style={styles.carImage} />
-      <View style={styles.carDetails}>
-        <Text style={styles.carName}>{item.name}</Text>
-        <Text>Prijs per dag: {item.pricePerDay}</Text>
-        <Text>Vermogen: {item.power}</Text>
+    <Image source={images[item.image]} style={styles.carImage} />
+<View style={styles.carDetails}>
+        <Text style={styles.carName}>{item.brand} {item.year}</Text>
+        <Text>Prijs per dag: {item.price}</Text>
+        <Text>Vermogen: {item.horsepower} pk</Text>
         <Text>Aantal deuren: {item.doors}</Text>
+        <Text>Transmissie: {item.transmission}</Text>
+        <Text>Status: {item.status}</Text>
+        <Text>Aantal beschikbaar: {item.variety}</Text>
       </View>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <FlatList
         data={cars}
         renderItem={renderCar}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );
