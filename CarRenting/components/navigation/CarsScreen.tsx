@@ -7,6 +7,7 @@ const API_URL = 'http://localhost:3000/cars';
 
 const images = {
   'gti.png': require('@/assets/images/gti.png'),
+  'maseratigh.png': require('@/assets/images/maseratigh.png'),
 };
 
 function CarsScreen() {
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 10,
     marginRight: 15,
+    paddingRight: 130,
     backgroundColor: '#ccc',
   },
   carDetails: {

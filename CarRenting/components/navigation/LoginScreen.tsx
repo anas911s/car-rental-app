@@ -1,4 +1,3 @@
-// LoginScreen.js
 import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import * as React from 'react';
 

@@ -1,10 +1,10 @@
-// InfoScreen.js
 import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
 const images = {
   'gti.png': require('@/assets/images/gti.png'),
+  'maseratigh.png': require('@/assets/images/maseratigh.png'),
 };
 
 function InfoScreen() {
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     height: 500,
     borderRadius: 10,
     marginRight: 15,
+    justifyContent: 'flex-end',
   },
   title: {
     paddingBottom: 40,
