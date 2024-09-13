@@ -43,7 +43,6 @@ function CarsScreen() {
         <Text>Vermogen: {item.horsepower} pk</Text>
         <Text>Aantal deuren: {item.doors}</Text>
         <Text>Transmissie: {item.transmission}</Text>
-        <Text>Status: {item.status}</Text>
         <Text>Aantal beschikbaar: {item.variety}</Text>
       </View>
     </TouchableOpacity>

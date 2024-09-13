@@ -1,17 +1,32 @@
 import { Text, View, StyleSheet, Image, Dimensions, Platform, TouchableOpacity, TextInput } from 'react-native';
 import * as React from 'react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
+import axios from 'axios';
 
 const window = Dimensions.get('window');
 const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function ProfileScreen() {
-    const { isLoggedIn, username, logout } = useState();
-    const [inputUsername, setUsername] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
 
-    const handleLogin = () => {
-        console.log('Logging in with', inputUsername, password);
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/api/users/login', {
+                username,
+                password
+            });
+
+            const { token } = response.data;
+            console.log('Login successful:', token);
+            setIsLoggedIn(true);
+            setError(null);
+        } catch (error) {
+            console.error('Login failed:', error.response?.data?.error || error.message);
+            setError(error.response?.data?.error || 'An error occurred during login');
+        }
     };
 
     const handleRegister = () => {
@@ -32,7 +47,7 @@ function ProfileScreen() {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter username"
-                        value={inputUsername}
+                        value={username}
                         onChangeText={setUsername}
                         autoCapitalize="none"
                     />
@@ -43,6 +58,7 @@ function ProfileScreen() {
                         onChangeText={setPassword}
                         secureTextEntry
                     />
+                    {error && <Text style={styles.errorText}>{error}</Text>}
                     <TouchableOpacity style={styles.button} onPress={handleLogin}>
                         <Text style={styles.buttonText}>Log In</Text>
                     </TouchableOpacity>
@@ -55,7 +71,7 @@ function ProfileScreen() {
                     <Text style={styles.greeting}>Hallo,{'\n'}{username}</Text>
                     <View style={styles.contentContainer}>
                         <Text style={styles.title}>Profiel</Text>
-                        <TouchableOpacity style={styles.button} onPress={logout}>
+                        <TouchableOpacity style={styles.button} onPress={() => setIsLoggedIn(false)}>
                             <Text style={styles.buttonText}>Uitloggen</Text>
                         </TouchableOpacity>
                     </View>
@@ -164,6 +180,11 @@ const styles = StyleSheet.create({
     registerText: {
         color: '#FF5F00',
         textAlign: 'center',
+    },
+    errorText: {
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: 10,
     },
 });
 
