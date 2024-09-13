@@ -1,25 +1,21 @@
-import { Text, View, StyleSheet, Image, Dimensions, Platform, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Image, Dimensions, Platform, TouchableOpacity, TextInput } from 'react-native';
 import * as React from 'react';
+import { useContext, useState } from 'react';
 
 const window = Dimensions.get('window');
-const isMobile = Platform.OS === 'ios' || 'android';
+const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function ProfileScreen() {
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-    const [username, setUsername] = React.useState('');
-    const [inputUsername, setInputUsername] = React.useState('');
+    const { isLoggedIn, username, logout } = useState();
+    const [inputUsername, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        if (inputUsername) {
-            setUsername(inputUsername);
-            setIsLoggedIn(true);
-        }
+        console.log('Logging in with', inputUsername, password);
     };
 
-    const handleLogout = () => {
-        setIsLoggedIn(false);
-        setUsername('');
-        setInputUsername('');
+    const handleRegister = () => {
+        console.log('Navigating to register');
     };
 
     return (
@@ -32,24 +28,35 @@ function ProfileScreen() {
             
             {!isLoggedIn ? (
                 <View style={styles.loginContainer}>
-                    <Text style={styles.title}>Login</Text>
+                    <Text style={styles.title}>Log In</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter your username"
+                        placeholder="Enter username"
                         value={inputUsername}
-                        onChangeText={setInputUsername}
+                        onChangeText={setUsername}
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter password"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
                     />
                     <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Login</Text>
+                        <Text style={styles.buttonText}>Log In</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleRegister} style={styles.registerLink}>
+                        <Text style={styles.registerText}>Not registered yet? Click here</Text>
                     </TouchableOpacity>
                 </View>
             ) : (
                 <View style={styles.profileContainer}>
                     <Text style={styles.greeting}>Hallo,{'\n'}{username}</Text>
                     <View style={styles.contentContainer}>
-                        <Text style={styles.title}>Profile</Text>
-                        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-                            <Text style={styles.buttonText}>Logout</Text>
+                        <Text style={styles.title}>Profiel</Text>
+                        <TouchableOpacity style={styles.button} onPress={logout}>
+                            <Text style={styles.buttonText}>Uitloggen</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -76,16 +83,17 @@ const styles = StyleSheet.create({
     },
     loginContainer: {
         position: 'absolute',
-        top: '40%',
+        top: 390,
+        bottom: 300,
         left: 20,
         right: 20,
         backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
+        padding: isMobile ? 75 : 20,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: -2 },
         elevation: 3,
     },
     profileContainer: {
@@ -112,10 +120,7 @@ const styles = StyleSheet.create({
         right: 20,
         backgroundColor: '#fff',
         padding: isMobile ? 75 : 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 5,
@@ -129,13 +134,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     input: {
-        height: 40,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 20,
         width: '100%',
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+        marginBottom: 10,
     },
     button: {
         backgroundColor: '#FF5F00',
@@ -153,6 +157,13 @@ const styles = StyleSheet.create({
         color: '#fff',
         textAlign: 'center',
         fontWeight: 'bold',
+    },
+    registerLink: {
+        marginTop: 10,
+    },
+    registerText: {
+        color: '#FF5F00',
+        textAlign: 'center',
     },
 });
 
