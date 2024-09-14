@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://localhost:3000/cars';
 
@@ -19,7 +20,12 @@ function CarsScreen() {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get(API_URL);
+        const token = await AsyncStorage.getItem('userToken');
+        const response = await axios.get(API_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setCars(response.data);
       } catch (err) {
         setError(err.message);
@@ -36,8 +42,8 @@ function CarsScreen() {
       style={styles.carContainer}
       onPress={() => navigation.navigate('Info', { car: item })}
     >
-    <Image source={images[item.image]} style={styles.carImage} />
-<View style={styles.carDetails}>
+      <Image source={images[item.image]} style={styles.carImage} />
+      <View style={styles.carDetails}>
         <Text style={styles.carName}>{item.brand} {item.year}</Text>
         <Text>Prijs per dag: {item.price}</Text>
         <Text>Vermogen: {item.horsepower} pk</Text>

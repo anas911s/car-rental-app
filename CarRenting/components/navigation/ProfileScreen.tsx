@@ -1,25 +1,47 @@
 import { Text, View, StyleSheet, Image, Dimensions, Platform, TouchableOpacity, TextInput } from 'react-native';
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const window = Dimensions.get('window');
 const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function ProfileScreen() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const storedUsername = await AsyncStorage.getItem('username');
+                if (token) {
+                    setIsLoggedIn(true);
+                    if (storedUsername) {
+                        setUsername(storedUsername);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to fetch token:', e);
+            }
+        };
+
+        checkLoginStatus();
+    }, []);
 
     const handleLogin = async () => {
         try {
             const response = await axios.post('http://localhost:3000/api/users/login', {
                 username,
-                password
+                password,
             });
-
-            const { token } = response.data;
+            const { token, user } = response.data;
+            await AsyncStorage.setItem('userToken', token);
+            await AsyncStorage.setItem('username', user.username);
             console.log('Login successful:', token);
             setIsLoggedIn(true);
             setError(null);
@@ -29,8 +51,39 @@ function ProfileScreen() {
         }
     };
 
+
+    const handleRegisterSubmit = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/api/users/register', {
+                username,
+                password,
+            });
+            console.log('Registration successful:', response.data);
+            setIsRegistering(false);
+            setError(null);
+        } catch (error) {
+            console.error('Registration failed:', error.response?.data?.error || error.message);
+            setError(error.response?.data?.error || 'An error occurred during registration');
+        }
+    };
+
     const handleRegister = () => {
-        console.log('Navigating to register');
+        setIsRegistering(true);
+        setError(null);
+    };
+
+    const handleBackToLogin = () => {
+        setIsRegistering(false);
+        setError(null);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem('userToken');
+            setIsLoggedIn(false);
+        } catch (e) {
+            console.error('Failed to logout:', e);
+        }
     };
 
     return (
@@ -40,38 +93,65 @@ function ProfileScreen() {
                 style={styles.backgroundImage} 
                 resizeMode="cover"
             />
-            
+
             {!isLoggedIn ? (
-                <View style={styles.loginContainer}>
-                    <Text style={styles.title}>Log In</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter username"
-                        value={username}
-                        onChangeText={setUsername}
-                        autoCapitalize="none"
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter password"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
-                    {error && <Text style={styles.errorText}>{error}</Text>}
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Log In</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleRegister} style={styles.registerLink}>
-                        <Text style={styles.registerText}>Not registered yet? Click here</Text>
-                    </TouchableOpacity>
-                </View>
+                isRegistering ? (
+                    <View style={styles.loginContainer}>
+                        <Text style={styles.title}>Register</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter username"
+                            value={username}
+                            onChangeText={setUsername}
+                            autoCapitalize="none"
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+                        {error && <Text style={styles.errorText}>{error}</Text>}
+                        <TouchableOpacity style={styles.button} onPress={handleRegisterSubmit}>
+                            <Text style={styles.buttonText}>Register</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleBackToLogin} style={styles.registerLink}>
+                            <Text style={styles.registerText}>Already have an account? Log in here</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <View style={styles.loginContainer}>
+                        <Text style={styles.title}>Log In</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter username"
+                            value={username}
+                            onChangeText={setUsername}
+                            autoCapitalize="none"
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+                        {error && <Text style={styles.errorText}>{error}</Text>}
+                        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                            <Text style={styles.buttonText}>Log In</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleRegister} style={styles.registerLink}>
+                            <Text style={styles.registerText}>Not registered yet? Click here</Text>
+                        </TouchableOpacity>
+                    </View>
+                )
             ) : (
                 <View style={styles.profileContainer}>
                     <Text style={styles.greeting}>Hallo,{'\n'}{username}</Text>
                     <View style={styles.contentContainer}>
                         <Text style={styles.title}>Profiel</Text>
-                        <TouchableOpacity style={styles.button} onPress={() => setIsLoggedIn(false)}>
+                        <TouchableOpacity style={styles.button} onPress={handleLogout}>
                             <Text style={styles.buttonText}>Uitloggen</Text>
                         </TouchableOpacity>
                     </View>
