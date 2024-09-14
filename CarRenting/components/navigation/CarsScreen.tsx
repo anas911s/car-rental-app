@@ -15,6 +15,7 @@ function CarsScreen() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -37,9 +38,9 @@ function CarsScreen() {
     fetchCars();
   }, []);
 
-  const renderCar = ({ item }) => (
+  const renderCar = ({ item, index }) => (
     <TouchableOpacity 
-      style={styles.carContainer}
+      style={[styles.carContainer, hoveredIndex === index && styles.carContainerHovered]}
       onPress={() => navigation.navigate('Info', { car: item })}
     >
       <Image source={images[item.image]} style={styles.carImage} />
@@ -94,6 +95,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+  },
+  carContainerHovered: {
+    backgroundColor: '#fff',
   },
   carImage: {
     width: 100,
