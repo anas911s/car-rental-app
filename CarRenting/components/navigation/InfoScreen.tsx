@@ -53,13 +53,15 @@ function InfoScreen() {
       );
   
       if (response.status === 200) {
-        Alert.alert('Success', 'Car rented successfully.');
+        Alert.alert('Success', 'Auto succesvol gehuurd');
       } else {
         Alert.alert('Error', 'Failed to rent the car.');
       }
+      if (response.status === 400) {
+        Alert.alert('Error', 'Niet beschikbaar');
+      }
     } catch (error) {
-      console.error('Error renting car:', error);
-      Alert.alert('Error', 'An error occurred while renting the car.');
+      Alert.alert('Oeps', 'Auto niet beschikbaar.');
     }
   };
 

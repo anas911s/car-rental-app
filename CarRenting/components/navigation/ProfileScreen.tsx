@@ -143,12 +143,35 @@ const handleLogin = async () => {
         }
     };
 
+    const handleCancel = async (rentalId) => {
+        setLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.delete(`http://192.168.1.208:3000/api/rental/user/delete/${rentalId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+    
+            if (response.status === 200) {
+                fetchUserRentals(userId);
+            }
+        } catch (error) {
+            console.error('Error canceling rental:', error.response?.data?.error || error.message);
+            setError(error.response?.data?.error || 'An error occurred during cancellation');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+
     const renderRentalItem = ({ item }) => (
         <View style={styles.rentalCard}>
             <Image source={images[item.Car.image]}  style={styles.rentalImage} />
             <Text style={styles.rentalText}>{item.Car.brand} ({item.Car.year})</Text>
             <Text style={styles.rentalText}>Price: {item.Car.price} €</Text>
             <Text style={styles.rentalText}>Location: {item.Car.location}</Text>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel(item.id)}>
+                <Text style={styles.cancelButtonText}>Annuleer boeking</Text>
+            </TouchableOpacity>
         </View>
     );
 
@@ -361,6 +384,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     greeting: {
+        color: 'white',
         fontWeight: 'bold',
         fontSize: 24,
     },
@@ -395,6 +419,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
         marginBottom: 5,
+    },
+    cancelButton: {
+        backgroundColor: '#E74C3C',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        position: 'absolute',
+        bottom: 10,
+        right: 10,
+    },
+    cancelButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
     
 });
