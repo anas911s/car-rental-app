@@ -16,29 +16,39 @@ function HomeScreen() {
     try {
       const response = await fetch('http://192.168.1.208:3000/cars');
       const cars = await response.json();
-      console.log(cars)
+      console.log(cars);
       console.log('Filters:', { brand, transmission, location });
-
+  
       const filteredCars = cars.filter((car) => {
         console.log('Auto details:', car);
-        return (
-          (brand ? car.brand === brand : true) &&
-          (transmission ? car.transmission === transmission : true) &&
-          (location ? car.location === location : true)
-        );
+  
+        const brandMatch = brand 
+          ? car.brand.toLowerCase().includes(brand.toLowerCase()) 
+          : true;
+  
+        const transmissionMatch = transmission 
+          ? car.transmission === transmission 
+          : true;
+  
+        const locationMatch = location 
+          ? car.location === location 
+          : true;
+  
+        return brandMatch && transmissionMatch && locationMatch;
       });
-
+  
       if (filteredCars.length === 0) {
         alert('Geen resultaten');
       } else {
-        console.log(cars);
-        navigation.navigate('Info', { filteredCars });
+        console.log(filteredCars);
+        navigation.navigate('Info', { car: filteredCars[0] });
       }
     } catch (error) {
       console.error('Error fetching cars:', error);
       Alert.alert('Error', 'error');
     }
   };
+  
 
   return (
     <View style={styles.container}>

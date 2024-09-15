@@ -14,7 +14,7 @@ const images = {
 function InfoScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { car } = route.params || {};
+  const { car } = route.params;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
