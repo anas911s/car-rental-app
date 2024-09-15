@@ -106,6 +106,7 @@ const handleLogin = async () => {
             const response = await axios.post('http://192.168.1.208:3000/api/users/register', {
                 username,
                 password,
+                email,
             });
             console.log('Registration successful:', response.data);
             setIsRegistering(false);
@@ -174,6 +175,13 @@ const handleLogin = async () => {
                             />
                             <TextInput
                                 style={styles.input}
+                                placeholder="Enter email"
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                            />
+                            <TextInput
+                                style={styles.input}
                                 placeholder="Enter password"
                                 value={password}
                                 onChangeText={setPassword}
@@ -196,13 +204,6 @@ const handleLogin = async () => {
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter email"
-                                value={email}
-                                onChangeText={setEmail}
-                                secureTextEntry
                             />
                             <TextInput
                                 style={styles.input}
