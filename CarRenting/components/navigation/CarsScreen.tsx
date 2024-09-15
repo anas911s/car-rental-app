@@ -85,6 +85,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   carContainer: {
+    minWidth: 250,
+    minHeight: 50,
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderRadius: 10,
