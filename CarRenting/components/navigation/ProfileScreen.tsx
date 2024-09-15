@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Image, Dimensions, Platform, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, Image, Dimensions, Platform, TouchableOpacity, TextInput, ActivityIndicator, FlatList, ScrollView } from 'react-native';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -7,23 +7,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const window = Dimensions.get('window');
 const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
+const images = {
+    'gti.png': require('@/assets/images/gti.png'),
+    'maseratigh.png': require('@/assets/images/maseratigh.png'),
+  };
+
 function ProfileScreen() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isRegistering, setIsRegistering] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [rentals, setRentals] = useState([]);
+    const [userId, setUserId] = useState(null);
+    const [userDetails, setUserDetails] = useState(null); 
 
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
                 const storedUsername = await AsyncStorage.getItem('username');
+                const storedUserId = await AsyncStorage.getItem('userId');
+
                 if (token) {
                     setIsLoggedIn(true);
-                    if (storedUsername) {
+                    if (storedUsername && storedUserId) {
                         setUsername(storedUsername);
+                        setUserId(storedUserId);
+                        fetchUserRentals(storedUserId);
                     }
                 }
             } catch (e) {
@@ -34,8 +47,35 @@ function ProfileScreen() {
         checkLoginStatus();
     }, []);
 
-    const handleLogin = async () => {
+    const fetchUserDetails = async (userId) => {
+        try {
+            const response = await axios.get(`http://192.168.1.208:3000/api/users/users/${userId}`);
+            setUserDetails(response.data);
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            setError('Failed to fetch user details');
+        }
+    };
+
+    const fetchUserRentals = async (userId) => {
         setLoading(true);
+        try {
+            const response = await axios.get(`http://192.168.1.208:3000/api/rental/user/${userId}`);
+            if (response.data && response.data.message) {
+                setRentals([]);
+            } else {
+                setRentals(response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching rentals:', error);
+            setError('Failed to fetch rentals');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+const handleLogin = async () => {
+    setLoading(true);
         try {
             const response = await axios.post('http://192.168.1.208:3000/api/users/login', {
                 username,
@@ -44,9 +84,13 @@ function ProfileScreen() {
             const { token, user } = response.data;
             await AsyncStorage.setItem('userToken', token);
             await AsyncStorage.setItem('username', user.username);
+            await AsyncStorage.setItem('userId', user.id.toString());
             console.log('Login successful:', token);
             setIsLoggedIn(true);
             setError(null);
+            setUserId(user.id);
+            fetchUserRentals(user.id);
+            fetchUserDetails(user.id);
         } catch (error) {
             console.error('Login failed:', error.response?.data?.error || error.message);
             setError(error.response?.data?.error || 'An error occurred during login');
@@ -54,6 +98,7 @@ function ProfileScreen() {
             setLoading(false);
         }
     };
+
 
     const handleRegisterSubmit = async () => {
         setLoading(true);
@@ -88,6 +133,7 @@ function ProfileScreen() {
         try {
             await AsyncStorage.removeItem('userToken');
             await AsyncStorage.removeItem('username');
+            await AsyncStorage.removeItem('userId');
             setIsLoggedIn(false);
         } catch (e) {
             console.error('Failed to logout:', e);
@@ -96,8 +142,17 @@ function ProfileScreen() {
         }
     };
 
+    const renderRentalItem = ({ item }) => (
+        <View style={styles.rentalCard}>
+            <Image source={images[item.Car.image]}  style={styles.rentalImage} />
+            <Text style={styles.rentalText}>{item.Car.brand} ({item.Car.year})</Text>
+            <Text style={styles.rentalText}>Price: {item.Car.price} €</Text>
+            <Text style={styles.rentalText}>Location: {item.Car.location}</Text>
+        </View>
+    );
+
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollViewContent}>
             <Image 
                 source={require('@/assets/images/maserati.png')} 
                 style={styles.backgroundImage} 
@@ -108,7 +163,7 @@ function ProfileScreen() {
             ) : (
                 !isLoggedIn ? (
                     isRegistering ? (
-                        <View style={styles.loginContainer}>
+                        <View style={styles.authContainer}>
                             <Text style={styles.title}>Register</Text>
                             <TextInput
                                 style={styles.input}
@@ -133,7 +188,7 @@ function ProfileScreen() {
                             </TouchableOpacity>
                         </View>
                     ) : (
-                        <View style={styles.loginContainer}>
+                        <View style={styles.authContainer}>
                             <Text style={styles.title}>Log In</Text>
                             <TextInput
                                 style={styles.input}
@@ -141,6 +196,13 @@ function ProfileScreen() {
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
+                            />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter email"
+                                value={email}
+                                onChangeText={setEmail}
+                                secureTextEntry
                             />
                             <TextInput
                                 style={styles.input}
@@ -159,10 +221,32 @@ function ProfileScreen() {
                         </View>
                     )
                 ) : (
+                    <View style={styles.profileSection}>
+                    <Text style={styles.greeting}>Hallo,{'\n'}{username}</Text>
                     <View style={styles.profileContainer}>
-                        <Text style={styles.greeting}>Hallo,{'\n'}{username}</Text>
-                        <View style={styles.contentContainer}>
-                            <Text style={styles.title}>Profiel</Text>
+                        <Text style={styles.title}>Profile Informatie</Text>
+                        {userDetails ? (
+                            <>
+                                <Text style={styles.profileText}>Naam: {userDetails.username}</Text>
+                                <Text style={styles.profileText}>Email: {userDetails.email}</Text>
+                            </>
+                        ) : (
+                            <Text style={styles.noRentalsText}>Kon info niet ophalen</Text>
+                        )}
+                    </View>
+
+                        <View style={styles.rentalsContainer}>
+                            <Text style={styles.title}>Jouw Huur auto</Text>
+                            {rentals.length > 0 ? (
+                                <FlatList
+                                    data={rentals}
+                                    renderItem={renderRentalItem}
+                                    keyExtractor={(item) => item.id.toString()}
+                                    contentContainerStyle={styles.rentalList}
+                                />
+                            ) : (
+                                <Text style={styles.noRentalsText}>Nog geen gehuurde auto's</Text>
+                            )}
                             <TouchableOpacity style={styles.button} onPress={handleLogout}>
                                 <Text style={styles.buttonText}>Uitloggen</Text>
                             </TouchableOpacity>
@@ -170,7 +254,7 @@ function ProfileScreen() {
                     </View>
                 )
             )}
-        </View>
+        </ScrollView>
     );
 }
 
@@ -178,70 +262,54 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
-        justifyContent: 'flex-end',
     },
     backgroundImage: {
         position: 'absolute',
-        justifyContent: 'flex-start',
-        top: -10,
+        top: 0,
         left: 0,
         right: 0,
-        bottom: '10%',
-        width: isMobile ? '127%' : '100%',
-        height: isMobile ? 345 : 450,
+        height: 300,
+        width: '100%',
     },
-    loginContainer: {
-        position: 'absolute',
-        minHeight: 250,
-        flex: 1,
-        justifyContent: 'space-evenly',
-        top: 200,
-        left: 2,
-        marginBottom: 600,
-        right: 2,
+    scrollViewContent: {
+        flexGrow: 1,
+        justifyContent: 'flex-start',
+        padding: 20,
+    },
+    authContainer: {
         backgroundColor: '#fff',
-        padding: isMobile ? 20 : 20,
-        borderRadius: 20,
+        padding: 20,
+        borderRadius: 10,
         shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        shadowOffset: { width: 0, height: -2 },
-        elevation: 3,
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 5,
+        marginVertical: 200,
+    },
+    profileSection: {
+        marginVertical: 20,
     },
     profileContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    greeting: {
-        position: 'absolute',
-        top: 160,
-        left: 20,
-        color: '#FFF',
-        fontSize: isMobile ? 40 : 60,
-        fontWeight: 'bold',
-        zIndex: 1,
-        textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 3,
-    },
-    contentContainer: {
-        position: 'absolute',
-        flex: 1,
-        justifyContent: 'space-evenly',
-        top: 300,
-        left: 2,
-        marginBottom: 600,
-        right: 2,
-        minHeight: 250,
         backgroundColor: '#fff',
-        padding: isMobile ? 20 : 20,
-        borderRadius: 20,
+        padding: 20,
+        borderRadius: 10,
         shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        shadowOffset: { width: 0, height: -2 },
-        elevation: 3,
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 5,
+    },
+    rentalsContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 5,
+        marginTop: 20,
     },
     title: {
         fontSize: 18,
@@ -291,6 +359,43 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    greeting: {
+        fontWeight: 'bold',
+        fontSize: 24,
+    },
+    rentalCard: {
+        backgroundColor: '#fff',
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 3,
+    },
+    rentalImage: {
+        width: '100%',
+        height: 150,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    rentalText: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 5,
+    },
+    noRentalsText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#777',
+    },
+    profileText: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 5,
+    },
+    
 });
 
 export default ProfileScreen;
