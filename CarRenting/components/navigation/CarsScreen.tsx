@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,8 @@ const API_URL = 'http://192.168.1.208:3000/cars';
 const images = {
   'gti.png': require('@/assets/images/gti.png'),
   'maseratigh.png': require('@/assets/images/maseratigh.png'),
+  'mercedesGT.png': require('@/assets/images/mercedesGT.png'),
+  'porsche.png': require('@/assets/images/porsche.png'),
 };
 
 function CarsScreen() {
@@ -38,10 +40,13 @@ function CarsScreen() {
     fetchCars();
   }, []);
 
-  const renderCar = ({ item, index }) => (
+  const renderCar = (item, index) => (
     <TouchableOpacity 
+      key={item.id}
       style={[styles.carContainer, hoveredIndex === index && styles.carContainerHovered]}
       onPress={() => navigation.navigate('Info', { car: item })}
+      onMouseEnter={() => setHoveredIndex(index)}
+      onMouseLeave={() => setHoveredIndex(null)}
     >
       <Image source={images[item.image]} style={styles.carImage} />
       <View style={styles.carDetails}>
@@ -68,13 +73,9 @@ function CarsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={cars}
-        renderItem={renderCar}
-        keyExtractor={(item) => item.id.toString()}
-      />
-    </View>
+    <ScrollView style={styles.container}>
+      {cars.map((car, index) => renderCar(car, index))}
+    </ScrollView>
   );
 }
 
@@ -99,14 +100,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   carContainerHovered: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0',
   },
   carImage: {
     width: 100,
     height: 100,
     borderRadius: 10,
     marginRight: 15,
-    paddingRight: 130,
     backgroundColor: '#ccc',
   },
   carDetails: {

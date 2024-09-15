@@ -7,6 +7,8 @@ import axios from 'axios';
 const images = {
   'gti.png': require('@/assets/images/gti.png'),
   'maseratigh.png': require('@/assets/images/maseratigh.png'),
+  'mercedesGT.png': require('@/assets/images/mercedesGT.png'),
+  'porsche.png': require('@/assets/images/porsche.png'),
 };
 
 function InfoScreen() {

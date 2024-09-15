@@ -10,6 +10,8 @@ const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 const images = {
     'gti.png': require('@/assets/images/gti.png'),
     'maseratigh.png': require('@/assets/images/maseratigh.png'),
+    'mercedesGT.png': require('@/assets/images/mercedesGT.png'),
+    'porsche.png': require('@/assets/images/porsche.png'),
   };
 
 function ProfileScreen() {
@@ -246,7 +248,7 @@ const handleLogin = async () => {
                     )
                 ) : (
                     <View style={styles.profileSection}>
-                    <Text style={styles.greeting}>Hallo,{'\n'}{username}</Text>
+                    <Text style={styles.greeting}>Welkom bij jouw profiel,{'\n'}{username}</Text>
                     <View style={styles.profileContainer}>
                         <Text style={styles.title}>Profile Informatie</Text>
                         {userDetails ? (
@@ -257,6 +259,9 @@ const handleLogin = async () => {
                         ) : (
                             <Text style={styles.noRentalsText}>Kon info niet ophalen</Text>
                         )}
+                        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                                <Text style={styles.buttonText}>Uitloggen</Text>
+                        </TouchableOpacity>
                     </View>
 
                         <View style={styles.rentalsContainer}>
@@ -271,9 +276,6 @@ const handleLogin = async () => {
                             ) : (
                                 <Text style={styles.noRentalsText}>Nog geen gehuurde auto's</Text>
                             )}
-                            <TouchableOpacity style={styles.button} onPress={handleLogout}>
-                                <Text style={styles.buttonText}>Uitloggen</Text>
-                            </TouchableOpacity>
                         </View>
                     </View>
                 )
@@ -293,12 +295,13 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         height: 300,
-        width: '100%',
+        width: '150%',
     },
     scrollViewContent: {
         flexGrow: 1,
         justifyContent: 'flex-start',
         padding: 20,
+        paddingTop: 160,
     },
     authContainer: {
         backgroundColor: '#fff',
@@ -309,7 +312,7 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 2 },
         elevation: 5,
-        marginVertical: 200,
+        marginVertical: 100,
     },
     profileSection: {
         marginVertical: 20,
@@ -384,9 +387,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     greeting: {
-        color: 'white',
+        color: '#fff',
         fontWeight: 'bold',
-        fontSize: 24,
+        fontSize: 24, 
+        textAlign: 'center',
+        marginVertical: 20,
+        textShadowColor: '#000',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
     },
     rentalCard: {
         backgroundColor: '#fff',
