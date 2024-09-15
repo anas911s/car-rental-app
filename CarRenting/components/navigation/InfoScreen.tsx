@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -84,14 +84,22 @@ function InfoScreen() {
             style={[styles.button, styles.rentButton]} 
             onPress={handleRentCar}
           >
-            <Text style={styles.buttonText}>Rent this vehicle</Text>
+            <Text style={styles.buttonText}>Huur deze auto</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity 
             style={[styles.button, styles.loginButton]} 
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => {
+              navigation.navigate('Profile');
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Cars' }],
+                })
+              );
+            }}
           >
-            <Text style={styles.buttonText}>Log In to Rent</Text>
+            <Text style={styles.buttonText}>Inloggen om te huren</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -177,6 +185,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
     position: 'absolute',
     flex: 1,
+    flex: 1,
+    top: 100,
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   buttonText: {
     color: '#fff',
