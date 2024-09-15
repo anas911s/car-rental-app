@@ -37,7 +37,7 @@ function ProfileScreen() {
     const handleLogin = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:3000/api/users/login', {
+            const response = await axios.post('http://192.168.1.208:3000/api/users/login', {
                 username,
                 password,
             });
@@ -58,7 +58,7 @@ function ProfileScreen() {
     const handleRegisterSubmit = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:3000/api/users/register', {
+            const response = await axios.post('http://192.168.1.208:3000/api/users/register', {
                 username,
                 password,
             });
@@ -192,12 +192,12 @@ const styles = StyleSheet.create({
     },
     loginContainer: {
         position: 'absolute',
-        top: 390,
-        bottom: 300,
+        top: 280,
+        bottom: 380,
         left: 20,
         right: 20,
         backgroundColor: '#fff',
-        padding: isMobile ? 75 : 20,
+        padding: isMobile ? 20 : 20,
         borderRadius: 20,
         shadowColor: '#000',
         shadowOpacity: 0.1,
@@ -224,11 +224,12 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         position: 'absolute',
-        bottom: 100,
+        top: 280,
+        bottom: 380,
         left: 20,
         right: 20,
         backgroundColor: '#fff',
-        padding: isMobile ? 75 : 20,
+        padding: isMobile ? 20 : 20,
         borderRadius: 20,
         shadowColor: '#000',
         shadowOpacity: 0.1,

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://localhost:3000/cars';
+const API_URL = 'http://192.168.1.208:3000/cars';
 
 const images = {
   'gti.png': require('@/assets/images/gti.png'),

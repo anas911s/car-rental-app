@@ -1,15 +1,44 @@
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, Platform, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as React from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const window = Dimensions.get('window');
 const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function HomeScreen() {
-  const [pickupDate, setPickupDate] = React.useState('');
-  const [returnDate, setReturnDate] = React.useState('');
-  const [category, setCategory] = React.useState('standard');
-  const [location, setLocation] = React.useState('Rotterdam');
+  const [location, setLocation] = React.useState('');
+  const [brand, setBrand] = React.useState('');
+  const [transmission, setTransmission] = React.useState('');
+  const navigation = useNavigation();
+
+  const fetchCars = async () => {
+    try {
+      const response = await fetch('http://192.168.1.208:3000/cars');
+      const cars = await response.json();
+      console.log(cars)
+      console.log('Filters:', { brand, transmission, location });
+
+      const filteredCars = cars.filter((car) => {
+        console.log('Auto details:', car);
+        return (
+          (brand ? car.brand === brand : true) &&
+          (transmission ? car.transmission === transmission : true) &&
+          (location ? car.location === location : true)
+        );
+      });
+
+      if (filteredCars.length === 0) {
+        alert('Geen resultaten');
+      } else {
+        console.log(cars);
+        navigation.navigate('Info', { filteredCars });
+      }
+    } catch (error) {
+      console.error('Error fetching cars:', error);
+      Alert.alert('Error', 'error');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -20,31 +49,23 @@ function HomeScreen() {
       />
       <View style={styles.filterContainer}>
         <Text style={styles.title}>Zoek naar een Auto</Text>
-        
+        <Text>Brand</Text>
         <TextInput
           style={styles.input}
-          placeholder="Ophaaldatum (bv. 2024-09-10)"
-          value={pickupDate}
-          onChangeText={setPickupDate}
+          placeholder="Merk (bv. BMW)"
+          value={brand}
+          onChangeText={setBrand}
         />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Retourdatum (bv. 2024-09-15)"
-          value={returnDate}
-          onChangeText={setReturnDate}
-        />
-        
+        <Text>Transmission</Text>
         <Picker
-          selectedValue={category}
+          selectedValue={transmission}
           style={styles.input}
-          onValueChange={(itemValue) => setCategory(itemValue)}
+          onValueChange={(itemValue) => setTransmission(itemValue)}
         >
-          <Picker.Item label="Standard" value="standard" />
-          <Picker.Item label="Gold" value="gold" />
-          <Picker.Item label="Premium" value="premium" />
+          <Picker.Item label="Manual" value="schakel" />
+          <Picker.Item label="Automatic" value="automatisch" />
         </Picker>
-        
+
         <Picker
           selectedValue={location}
           style={styles.input}
@@ -54,7 +75,7 @@ function HomeScreen() {
           <Picker.Item label="Amsterdam" value="Amsterdam" />
         </Picker>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={fetchCars}>
           <Text style={styles.buttonText}>Zoeken</Text>
         </TouchableOpacity>
       </View>
@@ -82,13 +103,15 @@ const styles = StyleSheet.create({
   filterContainer: {
     position: 'absolute',
     justifyContent: 'flex-end',
-    bottom: 0,
     left: 0,
     right: 0,
+    top: 300,
     backgroundColor: '#fff',
-    padding: isMobile ? 75 : 150,
+    padding: isMobile ? 20 : 150,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,

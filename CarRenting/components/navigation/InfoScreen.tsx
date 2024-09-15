@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const images = {
   'gti.png': require('@/assets/images/gti.png'),
@@ -11,7 +12,7 @@ const images = {
 function InfoScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { car } = route.params;
+  const { car } = route.params || {};
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -35,34 +36,62 @@ function InfoScreen() {
     );
   }
 
+  const carImage = images[car.image];
+
+  const handleRentCar = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        Alert.alert('Login Required', 'You must be logged in to rent a car.');
+        return;
+      }
+  
+      const response = await axios.post(
+        'http://192.168.1.208:3000/api/rental/rentals',
+        { carId: car.id },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+  
+      if (response.status === 200) {
+        Alert.alert('Success', 'Car rented successfully.');
+      } else {
+        Alert.alert('Error', 'Failed to rent the car.');
+      }
+    } catch (error) {
+      console.error('Error renting car:', error);
+      Alert.alert('Error', 'An error occurred while renting the car.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <Image source={images[car.image]} style={styles.image} resizeMode="contain" />
+        <Image source={carImage} style={styles.image} resizeMode="contain" />
       </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.title}>{car.brand} {car.year}</Text>
-        <Text>Prijs per dag: {car.price}</Text>
-        <Text>Vermogen: {car.horsepower} pk</Text>
-        <Text>Aantal deuren: {car.doors}</Text>
-        <Text>Transmissie: {car.transmission}</Text>
-        <Text>Status: {car.status}</Text>
-        <Text>Aantal beschikbaar: {car.variety}</Text>
+        <Text style={styles.title}>
+          {car.brand ? `${car.brand} ${car.year || ''}` : 'Onbekend merk'}
+        </Text>
+        <Text>Prijs per dag: {car.price ? `€${car.price}` : 'Niet beschikbaar'}</Text>
+        <Text>Vermogen: {car.horsepower ? `${car.horsepower} pk` : 'Niet beschikbaar'}</Text>
+        <Text>Aantal deuren: {car.doors || 'Niet gespecificeerd'}</Text>
+        <Text>Transmissie: {car.transmission ? car.transmission : 'Onbekend'}</Text>
+        <Text>Status: {car.status ? 'Beschikbaar' : 'Niet beschikbaar'}</Text>
+        <Text>Aantal beschikbaar: {car.variety ? car.variety : 'Niet beschikbaar'}</Text>
+
         {isLoggedIn ? (
           <TouchableOpacity 
             style={[styles.button, styles.rentButton]} 
-            onPress={() => {
-              alert('Car rented!');
-            }}
+            onPress={handleRentCar}
           >
-            <Text style={styles.buttonText}>Rent this car</Text>
+            <Text style={styles.buttonText}>Rent this vehicle</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity 
             style={[styles.button, styles.loginButton]} 
             onPress={() => navigation.navigate('Profile')}
           >
-            <Text style={styles.buttonText}>Login to rent car</Text>
+            <Text style={styles.buttonText}>Log In to Rent</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -73,7 +102,7 @@ function InfoScreen() {
   );
 }
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
 const styles = StyleSheet.create({
